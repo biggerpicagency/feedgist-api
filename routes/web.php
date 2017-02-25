@@ -53,7 +53,7 @@ Route::get('/likedPages', function() {
     $totalLikes = array_merge($totalLikes, $likesArray);
     $categorisedLikes = [];
 
-
+/*
     dd($totalLikes);
 
 
@@ -76,13 +76,13 @@ Route::get('/likedPages', function() {
 
     dd([$totalLikes]);
 
+*/
 
-/*
     $pageId = '152359208112754';
     try {
       // Get the \Facebook\GraphNodes\GraphUser object for the current user.
       // If you provided a 'default_access_token', the '{access-token}' is optional.
-      $response = $fb->get('/' . $pageId . '/posts', $accessToken);
+      $response = $fb->get('posts?ids=152359208112754,184572924024&limit=10&fields=message,full_picture', $accessToken);
     } catch(\Facebook\Exceptions\FacebookResponseException $e) {
       // When Graph returns an error
       echo 'Graph returned an error: ' . $e->getMessage();
@@ -93,7 +93,12 @@ Route::get('/likedPages', function() {
       exit;
     }
 
-    $graphEdge = $response->getGraphList();
+    dd($response);
 
-    dd($graphEdge);*/
+
+    foreach ($response->getGraphObject() as $graphNode) {
+      dump($graphNode->getGraphEdge());
+    }
+
+
 });

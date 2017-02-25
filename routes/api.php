@@ -19,4 +19,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => 'api'], function () {
     Route::post('/auth/facebookCallback', 'SocialAuthController@callback');
+    Route::get('list', function() {
+        return response()->json(['list' => [1,2,3]]);
+    });
 });
