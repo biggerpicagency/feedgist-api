@@ -3,53 +3,31 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\User;
-use Socialite;
-use JWTAuth;
+use GuzzleHttp;
+use App\Services\UserService;
 
 class SocialAuthController extends Controller
 {
-    public function redirect()
+    public function callback(Request $request, UserService $userService)
     {
-        return Socialite::driver('facebook')->stateless()->redirect();
-    }   
+        $client = new GuzzleHttp\Client();
+        $accessToken = $request->input('accessToken');
 
-    public function callback()
-    {
-        try {
-            $provider = Socialite::with('facebook');
-
-            if ($request->has('code')) {
-                $user = $provider->stateless()->user();
-            }
-        } catch (Exception $e) {
-            return redirect('auth/facebook');
+        if (!$accessToken) {
+            $params = [
+                'code' => $request->input('code'),
+                'client_id' => $request->input('clientId'),
+                'redirect_uri' => $request->input('redirectUri'),
+                'client_secret' => config('services.facebook.client_secret')
+            ];
+            // Step 1. Exchange authorization code for access token.
+            $accessTokenResponse = $client->request('GET', 'https://graph.facebook.com/v2.5/oauth/access_token', [
+                'query' => $params
+            ]);
+            $accessToken = json_decode($accessTokenResponse->getBody(), true);
+            $accessToken = $accessToken['access_token'];
         }
 
-        return $this->findOrCreateUser($user);
-    }
-
-    private function findOrCreateUser($facebookUser)
-    {
-        $user = User::where('social_id', '=', $facebookUser->id)->first();
-
-        if (is_object($user)) {
-            $token = JWTAuth::fromUser($user);
-            return ['wielkie' => 'jol'];
-        } else {
-            $result = array();
-            $result['name'] = $facebookUser->user['first_name']
-            $result['email'] = $facebookUser->user['email'];
-            $result['social_id'] = $facebookUser->id;
-
-            try {
-                $user = User::create($result);
-            } catch (Exception $e) {
-                return response()->json(['error' => 'User already exists.'], 400);
-            }
-
-            $token = JWTAuth::fromUser($user);
-            return ['wielkie' => 'jol2'];
-        }
+        return $this->apiResponse( $userService->authenticateFacebookUser($accessToken) );
     }
 }

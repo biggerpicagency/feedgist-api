@@ -38,6 +38,6 @@ return [
     'facebook' => [
         'client_id' => '1148407601949396',
         'client_secret' => 'ac3a982206182ade79a30d15d9a2dc78',
-        'redirect' => '',
+        'redirect' => 'http://api.feed-gist.dev/api/auth/facebookCallback',
     ],
 ];
