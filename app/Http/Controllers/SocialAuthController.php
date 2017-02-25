@@ -10,10 +10,10 @@ class SocialAuthController extends Controller
 {
     public function callback(Request $request, UserService $userService)
     {
-        $client = new GuzzleHttp\Client();
         $accessToken = $request->input('accessToken');
 
         if (!$accessToken) {
+            $client = new GuzzleHttp\Client();
             $params = [
                 'code' => $request->input('code'),
                 'client_id' => $request->input('clientId'),
