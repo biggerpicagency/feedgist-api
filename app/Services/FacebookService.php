@@ -36,7 +36,7 @@ class FaceBookService
 
             $response = json_decode($longLivedTokenResponse->getBody(), true);
             return $response['access_token'];
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return ['error' => 'Token refresh unsuccessful.'];
         }
     }

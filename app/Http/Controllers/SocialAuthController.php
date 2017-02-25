@@ -20,12 +20,12 @@ class SocialAuthController extends Controller
                 'redirect_uri' => $request->input('redirectUri'),
                 'client_secret' => config('services.facebook.client_secret')
             ];
-            // Step 1. Exchange authorization code for access token.
+
             $accessTokenResponse = $client->request('GET', 'https://graph.facebook.com/v2.5/oauth/access_token', [
                 'query' => $params
             ]);
-            $accessToken = json_decode($accessTokenResponse->getBody(), true);
-            $accessToken = $accessToken['access_token'];
+            $response = json_decode($accessTokenResponse->getBody(), true);
+            $accessToken = $response['access_token'];
         }
 
         return $this->apiResponse( $userService->authenticateFacebookUser($accessToken) );

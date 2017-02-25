@@ -14,13 +14,13 @@ class UserService
         $this->facebook = $facebook;
     }
 
-    public function authenticateFacebookUser($token = null) {
-        if (empty($token)) {
+    public function authenticateFacebookUser($accessToken = null) {
+        if (empty($accessToken)) {
             return ['error' => 'Access Token not provided.'];
         }
 
-        $token = $this->facebook->getRefreshedToken($token);
-        $client = $this->facebook->client($token);
+        $accessToken = $this->facebook->getRefreshedToken($accessToken);
+        $client = $this->facebook->client($accessToken);
 
         try {
             $response = $client->get('/me?fields=name,email');
@@ -30,24 +30,24 @@ class UserService
             return ['error' => 'Facebook SDK returned an error: ' . $e->getMessage()];
         }
 
-        return $this->findOrCreateUser($response->getGraphUser(), $token);
+        return $this->findOrCreateUser($response->getGraphUser(), $accessToken);
     }
 
-    private function findOrCreateUser($facebookGraphUser, $token = null)
+    private function findOrCreateUser($facebookGraphUser, $accessToken = null)
     {
         $user = User::where('social_id', '=', $facebookGraphUser['id'])->first();
 
         if (is_object($user)) {
-            $user->token = $token;
+            $user->token = $accessToken;
             $user->save();
 
-            return $this->getTokenFromUser($user);
+            return $this->returnTokenFromUser($user);
         } else {
             $result = array();
             $result['name'] = $facebookGraphUser['name'];
             $result['email'] = $facebookGraphUser['email'];
             $result['social_id'] = $facebookGraphUser['id'];
-            $result['token'] = $token;
+            $result['token'] = $accessToken;
             $result['password'] = '';
 
             try {
@@ -56,11 +56,11 @@ class UserService
                 return ['error' => 'User already exists.'];
             }
 
-            return $this->getTokenFromUser($user);
+            return $this->returnTokenFromUser($user);
         }
     }
 
-    private function getTokenFromUser($user)
+    private function returnTokenFromUser($user)
     {
         $token = JWTAuth::fromUser($user);
         return ['token' => $token];
