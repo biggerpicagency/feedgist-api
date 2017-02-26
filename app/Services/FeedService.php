@@ -23,36 +23,40 @@ class FeedService extends BaseService
         $graphEdge = $response->getGraphList();
 
         $categorisedPages = [];
-        $totalLikes = [];
-        $likesArray = [];
+        $totalPages = [];
+        $pagesArray = [];
 
-        $likesArray = $graphEdge->asArray();
-        $totalLikes = array_merge($totalLikes, $likesArray);
-        $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $likesArray));
+        $pagesArray = $graphEdge->asArray();
+        $totalPages = array_merge($totalPages, $pagesArray);
+        $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
 
         if ($client->next($graphEdge)) {  
-            $likesArray = $graphEdge->asArray();
-            $totalLikes = array_merge($totalLikes, $likesArray);
-            $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $likesArray));
+            $pagesArray = $graphEdge->asArray();
+            $totalPages = array_merge($totalPages, $pagesArray);
+            $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
 
             while ($graphEdge = $client->next($graphEdge)) { 
-                $likesArray = $graphEdge->asArray();
-                $totalLikes = array_merge($totalLikes, $likesArray);
-                $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $likesArray));
+                $pagesArray = $graphEdge->asArray();
+                $totalPages = array_merge($totalPages, $pagesArray);
+                $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
             }
 
         } else {
-            $likesArray = $graphEdge->asArray();
-            $totalLikes = array_merge($totalLikes, $likesArray);
-            $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $likesArray));
+            $pagesArray = $graphEdge->asArray();
+            $totalPages = array_merge($totalPages, $pagesArray);
+            $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
         }
 
-        return $categorisedPages;
+        return ['categories' => $this->finalCategories($categorisedPages), 'all' => $totalPages];
     }
 
     private function categorisePages($categorisedPages, $pages)
     {
         foreach ($pages as $page) {
+            if (!in_array($page['category'], ['Actor', 'Artist', 'Bar', 'Business Service', 'Cars', 'Company', 'Education', 'Entertainment Website', 'Games/Toys', 'Magazine', 'Musician/Band', 'News/Media Website', 'Personal Blog', 'Politician', 'TV Channel', 'Website'])) {
+                continue;
+            }
+
             if (isset($categorisedPages[ $page['category'] ])) {
                 $categorisedPages[ $page['category'] ]['pages'][] = $page;
 
@@ -65,5 +69,24 @@ class FeedService extends BaseService
         }
 
         return $categorisedPages;
+    }
+
+    private function finalCategories($categories = [])
+    {
+        $finalArray = [];
+        foreach ($categories as $category) {
+            $pages = [];
+            $category['pages'] = array_unique($category['pages'], SORT_REGULAR);
+
+            foreach ($category['pages'] as $page) {
+                $pages[] = $page;
+            }
+
+            $category['pages'] = $pages;
+
+            $finalArray[] = $category;
+        }
+
+        return $finalArray;
     }
 }
