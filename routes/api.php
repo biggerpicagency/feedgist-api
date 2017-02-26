@@ -13,5 +13,8 @@
 
 Route::group(['middleware' => 'api'], function () {
     Route::post('auth/facebookCallback', 'SocialAuthController@callback');
+
+    Route::get('feed/list', ['middleware' => ['jwt'], 'uses' => 'FeedController@feedList']);
     Route::get('feed/settings', ['middleware' => ['jwt'], 'uses' => 'FeedController@settings']);
+    Route::put('feed/settings', ['middleware' => ['jwt'], 'uses' => 'FeedController@saveSettings']);
 });

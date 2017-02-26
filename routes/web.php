@@ -82,7 +82,7 @@ Route::get('/likedPages', function() {
     try {
       // Get the \Facebook\GraphNodes\GraphUser object for the current user.
       // If you provided a 'default_access_token', the '{access-token}' is optional.
-      $response = $fb->get('posts?ids=152359208112754,184572924024&limit=10&fields=message,full_picture', $accessToken);
+      $response = $fb->get('posts?ids=152359208112754,184572924024&limit=10&fields=from{name,picture},message,full_picture', $accessToken);
     } catch(\Facebook\Exceptions\FacebookResponseException $e) {
       // When Graph returns an error
       echo 'Graph returned an error: ' . $e->getMessage();
@@ -93,7 +93,7 @@ Route::get('/likedPages', function() {
       exit;
     }
 
-    dd($response);
+    dd($response->getDecodedBody());
 
 
     foreach ($response->getGraphObject() as $graphNode) {

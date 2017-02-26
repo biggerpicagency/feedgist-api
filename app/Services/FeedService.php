@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Request;
 use App\Services\BaseService;
 use App\Services\FacebookService;
-use Illuminate\Http\Request;
+use App\Http\Requests\FeedSaveSettings;
+use App\Models\UsersPages;
 
 class FeedService extends BaseService
 {
@@ -14,6 +16,35 @@ class FeedService extends BaseService
     {
         parent::__construct($request);
         $this->facebookService = $facebookService;
+    }
+
+    public function getList()
+    {
+        $pages = UsersPages::where('user_id', $this->getUser()['id'])->get(['page_id'])->pluck('page_id')->toArray();
+        $pagesListWithCommas = implode(',', $pages);
+        $list = [];
+
+        if (empty($pagesListWithCommas)) {
+            return ['list' => $list];
+        }
+
+        $client = $this->facebookService->client( $this->getUser()['token'] );
+        $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=10&fields=from{name,picture},message,full_picture,created_time');
+
+        foreach ($response->getDecodedBody() as $page) {
+            if (!empty($page['data'])) {
+                $list = array_merge($list, $page['data']);
+            }
+        }
+
+        /*
+        if (!empty($list)) {
+            usort($list, function($a, $b) {
+                return $b['created_time'] - $a['created_time'];
+            });
+        }*/
+
+        return ['list' => $list];
     }
 
     public function getSettings()
@@ -47,7 +78,40 @@ class FeedService extends BaseService
             $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
         }
 
-        return ['categories' => $this->finalCategories($categorisedPages), 'all' => $totalPages];
+        return [
+            'categories' => $this->finalCategories($categorisedPages), 
+            'all' => $totalPages,
+            'selected' => $this->getSelectedPages(true)
+        ];
+    }
+
+    public function getSelectedPages($onlyIds = false)
+    {
+        $pages = UsersPages::where('user_id', $this->getUser()['id'])->get(['page_id']);
+
+        if ($onlyIds) {
+            return $pages->pluck('page_id')->toArray();
+        }
+
+        return $pages;
+    }
+
+    public function saveSettings(FeedSaveSettings $request)
+    {
+        try {
+            UsersPages::where('user_id', $this->getUser()['id'])->delete();
+
+            foreach ($request->input('pages') as $pageId) {
+                UsersPages::create([
+                    'user_id' => $this->getUser()['id'],
+                    'page_id' => $pageId
+                ]);
+            }
+        } catch (Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+
+        return ['message' => 'Selected pages have been saved.'];
     }
 
     private function categorisePages($categorisedPages, $pages)
