@@ -16,6 +16,11 @@ Route::get('/', function () {
 });
 
 Route::get('/home', 'HomeController@index');
+Route::get('test', function() {
+    $time = strtotime('2017-02-22T09:57:22+0000');
+
+    return date('Y-m-d', $time);
+});
 Route::get('/likedPages', function() {
     $userId = '1359629890724947';
     $accessToken = 'EAAQUeHsr6tQBADZAiQldAmjWTui9LEnA3tZCqRoXRt1oGg8Nw2rWinwvD3lkvCHketBFvWwwIOfogTu0SStruLQrvjgMUwevJv28Y0s6G63DFCHZAhxJjZCDgMcvBuFdfBjsxxU1uKCZCoYvpEDckilcH6MAZAtpQZD';
@@ -82,7 +87,7 @@ Route::get('/likedPages', function() {
     try {
       // Get the \Facebook\GraphNodes\GraphUser object for the current user.
       // If you provided a 'default_access_token', the '{access-token}' is optional.
-      $response = $fb->get('posts?ids=152359208112754,184572924024&limit=10&fields=from{name,picture},message,full_picture', $accessToken);
+      $response = $fb->get('posts?ids=152359208112754,184572924024&limit=10&fields=message,full_picture', $accessToken);
     } catch(\Facebook\Exceptions\FacebookResponseException $e) {
       // When Graph returns an error
       echo 'Graph returned an error: ' . $e->getMessage();
@@ -93,7 +98,7 @@ Route::get('/likedPages', function() {
       exit;
     }
 
-    dd($response->getDecodedBody());
+    dd($response);
 
 
     foreach ($response->getGraphObject() as $graphNode) {

@@ -29,7 +29,7 @@ class FeedService extends BaseService
         }
 
         $client = $this->facebookService->client( $this->getUser()['token'] );
-        $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=10&fields=from{name,picture},message,full_picture,created_time');
+        $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=10&fields=from{name,picture,link},message,full_picture,created_time,link');
 
         foreach ($response->getDecodedBody() as $page) {
             if (!empty($page['data'])) {
@@ -37,12 +37,19 @@ class FeedService extends BaseService
             }
         }
 
-        /*
         if (!empty($list)) {
+            foreach ($list as $i => $post) {
+                $list[ $i ]['created_at_timestamp'] = strtotime($post['created_time']);
+
+                if (!empty($post['message'])) {
+                    $list[ $i ]['message'] = $this->convertPlainTextLinks($post['message']);
+                }
+            }
+
             usort($list, function($a, $b) {
-                return $b['created_time'] - $a['created_time'];
+                return $b['created_at_timestamp'] - $a['created_at_timestamp'];
             });
-        }*/
+        }
 
         return ['list' => $list];
     }
@@ -112,6 +119,12 @@ class FeedService extends BaseService
         }
 
         return ['message' => 'Selected pages have been saved.'];
+    }
+
+    private function convertPlainTextLinks($text)
+    {
+        $url = '@(http)?(s)?(://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@';
+        return preg_replace($url, '<a href="http$2://$4" target="_blank">$0</a>', $text);
     }
 
     private function categorisePages($categorisedPages, $pages)
