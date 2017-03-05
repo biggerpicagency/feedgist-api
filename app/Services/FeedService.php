@@ -29,7 +29,7 @@ class FeedService extends BaseService
         }
 
         $client = $this->facebookService->client( $this->getUser()['token'] );
-        $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=10&fields=from{name,picture,link},message,full_picture,created_time,link');
+        $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=10&fields=from{name,picture,link},message,full_picture,created_time,link,likes.summary(true)');
 
         foreach ($response->getDecodedBody() as $page) {
             if (!empty($page['data'])) {
@@ -85,22 +85,35 @@ class FeedService extends BaseService
             $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
         }
 
+        $allPages = $this->finalAllPages($totalPages);
         return [
             'categories' => $this->finalCategories($categorisedPages), 
-            'all' => $this->finalAllPages($totalPages),
-            'selected' => $this->getSelectedPages(true)
+            'all' => $allPages,
+            'selected' => $this->getSelectedPages(true, $allPages)
         ];
     }
 
-    public function getSelectedPages($onlyIds = false)
+    public function getSelectedPages($onlyIds = false, $allPages = [])
     {
-        $pages = UsersPages::where('user_id', $this->getUser()['id'])->get(['page_id']);
+        $pages = [];
+        $pagesIds = UsersPages::where('user_id', $this->getUser()['id'])->get(['page_id']);
 
         if ($onlyIds) {
-            return $pages->pluck('page_id')->toArray();
+            $pagesIds = $pagesIds->pluck('page_id')->toArray();
         }
 
-        return $pages;
+        if ($allPages && $onlyIds) {
+            foreach ($allPages as $page) {
+                if (in_array($page['id'], $pagesIds)) {
+                    $pages[] = $page;
+                }
+            }
+        }
+
+        return [
+            'ids' => $pagesIds,
+            'pages' => $pages
+        ];
     }
 
     public function saveSettings(FeedSaveSettings $request)
