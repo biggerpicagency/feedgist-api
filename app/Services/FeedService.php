@@ -87,7 +87,7 @@ class FeedService extends BaseService
 
         return [
             'categories' => $this->finalCategories($categorisedPages), 
-            'all' => $totalPages,
+            'all' => $this->finalAllPages($totalPages),
             'selected' => $this->getSelectedPages(true)
         ];
     }
@@ -162,6 +162,17 @@ class FeedService extends BaseService
             $category['pages'] = $pages;
 
             $finalArray[] = $category;
+        }
+
+        return $finalArray;
+    }
+
+    private function finalAllPages($pages = [])
+    {
+        $finalArray = [];
+        $pages = array_unique($pages, SORT_REGULAR);
+        foreach ($pages as $page) {
+            $finalArray[] = $page;
         }
 
         return $finalArray;
