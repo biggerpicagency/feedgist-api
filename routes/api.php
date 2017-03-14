@@ -17,4 +17,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('feed/list', ['middleware' => ['jwt'], 'uses' => 'FeedController@feedList']);
     Route::get('feed/settings', ['middleware' => ['jwt'], 'uses' => 'FeedController@settings']);
     Route::put('feed/settings', ['middleware' => ['jwt'], 'uses' => 'FeedController@saveSettings']);
+
+    Route::get('settings/{playerId}', ['middleware' => ['jwt'], 'uses' => 'SettingsController@get']);
+    Route::delete('settings/{playerId}', ['middleware' => ['jwt'], 'uses' => 'SettingsController@remove']);
+    Route::put('settings', ['middleware' => ['jwt'], 'uses' => 'SettingsController@add']);
 });

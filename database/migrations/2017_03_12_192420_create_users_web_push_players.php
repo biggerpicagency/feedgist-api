@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsersPagesTable extends Migration
+class CreateUsersWebPushPlayers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,14 @@ class CreateUsersPagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('users_pages', function (Blueprint $table) {
+        Schema::create('users_web_push_players', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->nullable()->default(null)->unsigned();
-            $table->string('page_id')->nullable();
-            $table->timestamp('created_at')->nullable();
+            $table->string('player_id')->nullable();
+            $table->boolean('reminder_type')->unsigned()->nullable();
+            $table->string('reminder_first_at', 5)->default('11:00');
+            $table->string('reminder_second_at', 5)->default('19:00');
+            $table->timestamps();
 
             $table->foreign('user_id')
                   ->references('id')->on('users')
@@ -32,11 +35,10 @@ class CreateUsersPagesTable extends Migration
      */
     public function down()
     {
-        Schema::table('users_pages', function(Blueprint $table)
-        {
-            //$table->dropForeign('users_pages_user_id');
+        Schema::table('users_web_push_players', function(Blueprint $table) {
+            $table->dropForeign('users_web_push_players_user_id');
         });
 
-        Schema::dropIfExists('users_pages');
+        Schema::dropIfExists('users_web_push_players');
     }
 }
