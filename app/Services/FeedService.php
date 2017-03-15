@@ -7,10 +7,12 @@ use App\Services\BaseService;
 use App\Services\FacebookService;
 use App\Http\Requests\FeedSaveSettings;
 use App\Models\UsersPages;
+use Cache;
 
 class FeedService extends BaseService
 {
     protected $facebookService;
+    protected $cacheTimeInSeconds = '1';
 
     public function __construct(Request $request, FacebookService $facebookService)
     {
@@ -20,38 +22,41 @@ class FeedService extends BaseService
 
     public function getList()
     {
-        $pages = UsersPages::where('user_id', $this->getUser()['id'])->get(['page_id'])->pluck('page_id')->toArray();
-        $pagesListWithCommas = implode(',', $pages);
-        $list = [];
+        return Cache::remember('feed', $this->cacheTimeInSeconds, function() {
+            $pages = UsersPages::where('user_id', $this->getUser()['id'])->get(['page_id'])->pluck('page_id')->toArray();
+            $pagesListWithCommas = implode(',', $pages);
+            $list = [];
 
-        if (empty($pagesListWithCommas)) {
-            return ['list' => $list];
-        }
-
-        $client = $this->facebookService->client( $this->getUser()['token'] );
-        $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=10&fields=from{name,picture,link},message,full_picture,created_time,link,likes.summary(true)');
-
-        foreach ($response->getDecodedBody() as $page) {
-            if (!empty($page['data'])) {
-                $list = array_merge($list, $page['data']);
+            if (empty($pagesListWithCommas)) {
+                return ['list' => $list];
             }
-        }
 
-        if (!empty($list)) {
-            foreach ($list as $i => $post) {
-                $list[ $i ]['created_at_timestamp'] = strtotime($post['created_time']);
+            $client = $this->facebookService->client( $this->getUser()['token'] );
+            $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=5&fields=from{name,picture,link},message,full_picture,created_time,link,likes.summary(true)');
+            $pages = $response->getDecodedBody();
 
-                if (!empty($post['message'])) {
-                    $list[ $i ]['message'] = $this->convertPlainTextLinks($post['message']);
+            foreach ($pages as $page) {
+                if (!empty($page['data'])) {
+                    $list = array_merge($list, $page['data']);
                 }
             }
 
-            usort($list, function($a, $b) {
-                return $b['created_at_timestamp'] - $a['created_at_timestamp'];
-            });
-        }
+            if (!empty($list)) {
+                foreach ($list as $i => $post) {
+                    $list[ $i ]['created_at_timestamp'] = strtotime($post['created_time']);
 
-        return ['list' => $list];
+                    if (!empty($post['message'])) {
+                        $list[ $i ]['message'] = $this->convertPlainTextLinks($post['message']);
+                    }
+                }
+
+                usort($list, function($a, $b) {
+                    return $b['created_at_timestamp'] - $a['created_at_timestamp'];
+                });
+            }
+
+            return ['list' => $list];
+        });
     }
 
     public function getSettings()
@@ -127,6 +132,8 @@ class FeedService extends BaseService
                     'page_id' => $pageId
                 ]);
             }
+
+            Cache::forget('feed');
         } catch (Exception $e) {
             return ['error' => $e->getMessage()];
         }
