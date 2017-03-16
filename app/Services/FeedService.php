@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\BaseService;
 use App\Services\FacebookService;
@@ -22,6 +24,8 @@ class FeedService extends BaseService
 
     public function getList()
     {
+        User::where('id', $this->getUser()['id'])->update(['last_visit_first_post_date' => Carbon::now()]);
+        
         return Cache::remember('feed', $this->cacheTimeInSeconds, function() {
             $pages = UsersPages::where('user_id', $this->getUser()['id'])->pluck('page_id')->toArray();
             $pagesListWithCommas = implode(',', $pages);
