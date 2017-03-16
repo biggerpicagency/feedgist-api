@@ -31,6 +31,7 @@ class EmailToAdmin extends Mailable
     public function build()
     {
         return $this
-            ->view('emails.admin');
+            ->view('emails.admin')
+            ->subject('You have a new email from FeedGist');
     }
 }
