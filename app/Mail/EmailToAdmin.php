@@ -10,8 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class EmailToAdmin extends Mailable
 {
     use Queueable, SerializesModels;
-
-    protected $emailData;
+    
+    public $emailData;
     
     /**
      * Create a new message instance.
