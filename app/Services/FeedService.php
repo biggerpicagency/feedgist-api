@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\User;
 use Carbon\Carbon;
+use Facebook\FacebookRequest;
 use Illuminate\Http\Request;
 use App\Services\BaseService;
 use App\Services\FacebookService;
@@ -143,6 +144,19 @@ class FeedService extends BaseService
         }
 
         return ['message' => 'Selected pages have been saved.'];
+    }
+    
+    public function feedLikeOrDislike($postId, $request)
+    {
+        $liking = (boolean) $request->get('liking');
+        $client = $this->facebookService->client( $this->getUser()['token'] );
+        
+        if ($liking) {
+            $response = $client->post('/' . $postId . '/likes');
+        } else {
+            $response = $client->delete('/' . $postId . '/likes');
+        }
+        return json_decode($response);
     }
 
     private function convertPlainTextLinks($text)

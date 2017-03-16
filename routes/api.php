@@ -18,6 +18,7 @@ Route::group(['middleware' => 'api'], function () {
         Route::get('feed/list', 'FeedController@feedList');
         Route::get('feed/settings',  'FeedController@settings');
         Route::put('feed/settings', 'FeedController@saveSettings');
+        Route::post('feed/like/{postId}', 'FeedController@feedLikeOrDislike');
     
         Route::get('settings/{playerId}', 'SettingsController@get');
         Route::delete('settings/{playerId}', 'SettingsController@remove');
