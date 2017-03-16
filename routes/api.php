@@ -21,4 +21,5 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('settings/{playerId}', ['middleware' => ['jwt'], 'uses' => 'SettingsController@get']);
     Route::delete('settings/{playerId}', ['middleware' => ['jwt'], 'uses' => 'SettingsController@remove']);
     Route::put('settings', ['middleware' => ['jwt'], 'uses' => 'SettingsController@add']);
+    Route::post('sendMessage', 'SettingsController@sendMessage');
 });

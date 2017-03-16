@@ -40,4 +40,9 @@ return [
         'client_secret' => 'ac3a982206182ade79a30d15d9a2dc78',
         'redirect' => 'http://api.feed-gist.dev/api/auth/facebookCallback',
     ],
+    
+    'onesignal' => [
+        'app_id' => env('ONESIGNAL_APP_ID'),
+        'rest_api_key' => env('ONESIGNAL_REST_API_KEY')
+    ],
 ];

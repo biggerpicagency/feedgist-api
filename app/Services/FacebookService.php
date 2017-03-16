@@ -5,7 +5,7 @@ namespace App\Services;
 use \Facebook\Facebook;
 use GuzzleHttp;
 
-class FaceBookService
+class FacebookService
 {
     public function client($accessToken)
     {

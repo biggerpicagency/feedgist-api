@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\EmailToAdmin;
 use Illuminate\Http\Request;
 use App\Services\BaseService;
 use App\Models\UserWebPushPlayer;
+use Illuminate\Support\Facades\Mail;
 
 class SettingsService extends BaseService
 {
@@ -58,4 +60,17 @@ class SettingsService extends BaseService
             return ['error' => 'Error while removing your device from Alerts.'];
         }
     }
+    
+    public function sendMessage(Request $request)
+    {
+        $user = $request->get('user');
+        $emailData = [
+            'message' => $request->get('message', 'name'),
+            'usersName' => $user['name'],
+            'usersEmail' => $user['email']
+        ];
+        Mail::to('bartek@studiosidekicks.com')->send(new EmailToAdmin($emailData));
+        return ['message' => 'Thank you for your message.'];
+    }
+    
 }

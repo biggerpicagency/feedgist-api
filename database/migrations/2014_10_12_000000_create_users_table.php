@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('token');
-            $table->string('last_visit_first_post_date')->nullable();
+            $table->timestamp('last_visit_first_post_date')->nullable();
             $table->timestamps();
         });
     }

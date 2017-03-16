@@ -23,4 +23,9 @@ class SettingsController extends Controller
     {
         return $this->apiResponse( $settingsService->remove($playerId, $request->get('user')['id']) );
     }
+    
+    public function sendMessage(Request $request, SettingsService $settingsService)
+    {
+        return $this->apiResponse( $settingsService->sendMessage($request) );
+    }
 }

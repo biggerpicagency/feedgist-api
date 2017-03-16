@@ -15,7 +15,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'social_id', 'name', 'email', 'password', 'token'
+        'social_id', 'name', 'email', 'password', 'token', 'last_visit_first_post_date'
     ];
 
     /**
@@ -26,4 +26,19 @@ class User extends Authenticatable
     protected $hidden = [
         'password'
     ];
+    
+    public function players()
+    {
+        return $this->hasMany('App\Models\UserWebPushPlayer');
+    }
+    
+    public function pages()
+    {
+        return $this->hasMany('App\Models\UsersPages');
+    }
+    
+    public function scopeWithAndWhereHas($query, $relation, $constraint)
+    {
+        return $query->whereHas($relation, $constraint)->with([$relation => $constraint]);
+    }
 }
