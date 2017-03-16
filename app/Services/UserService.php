@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\User;
 use JWTAuth;
+use App\Models\UsersPages;
 
 class UserService
 {
@@ -62,7 +63,8 @@ class UserService
 
     private function returnTokenFromUser($user)
     {
+        $userPagesCounter = UsersPages::where('user_id', $user->id)->count();
         $token = JWTAuth::fromUser($user);
-        return ['token' => $token];
+        return ['token' => $token, 'pagesCounter' => $userPagesCounter];
     }
 }
