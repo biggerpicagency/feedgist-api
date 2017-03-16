@@ -61,11 +61,11 @@ class SettingsService extends BaseService
         }
     }
     
-    public function sendMessage(Request $request)
+    public function sendMessage($request)
     {
         $user = $request->get('user');
         $emailData = [
-            'message' => $request->get('message', 'name'),
+            'message' => $request->get('message', '*Something went wrong with getting the input*'),
             'usersName' => $user['name'],
             'usersEmail' => $user['email']
         ];
