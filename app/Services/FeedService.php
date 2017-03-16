@@ -23,7 +23,7 @@ class FeedService extends BaseService
     public function getList()
     {
         return Cache::remember('feed', $this->cacheTimeInSeconds, function() {
-            $pages = UsersPages::where('user_id', $this->getUser()['id'])->get(['page_id'])->pluck('page_id')->toArray();
+            $pages = UsersPages::where('user_id', $this->getUser()['id'])->pluck('page_id')->toArray();
             $pagesListWithCommas = implode(',', $pages);
             $list = [];
 

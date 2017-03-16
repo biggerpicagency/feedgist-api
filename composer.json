@@ -9,6 +9,7 @@
         "barryvdh/laravel-cors": "^0.8.6",
         "facebook/graph-sdk": "^5.4",
         "guzzlehttp/guzzle": "^6.2",
+        "laravel-notification-channels/onesignal": "^1.0",
         "laravel/framework": "5.4.*",
         "laravel/socialite": "^3.0",
         "laravel/tinker": "~1.0",
