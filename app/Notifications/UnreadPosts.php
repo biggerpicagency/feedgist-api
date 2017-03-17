@@ -49,7 +49,7 @@ class UnreadPosts extends Notification
             $message .= ' from ' . $this->notificationsData->pagesNames;
         }
         
-        if (!empty($this->notificationsData->pagesCount) && $this->notificationsData->pagesCount) {
+        if (!empty($this->notificationsData->pagesCount) && $this->notificationsData->pagesCount > 0) {
             $message .= ' and ' . $this->notificationsData->pagesCount . ' others';
         }
 
