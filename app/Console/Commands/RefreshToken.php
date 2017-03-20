@@ -6,6 +6,7 @@ use App\Services\FacebookService;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class RefreshToken extends Command
 {
@@ -41,7 +42,8 @@ class RefreshToken extends Command
      */
     public function handle()
     {
-        $users = User::where('created_at', '<=', Carbon::now()->subDay(2))->get();
+        $users = User::having(DB::raw('MOD(DATEDIFF(`created_at`, "' . Carbon::now() . '"), 7)'), 0)->get();
+
         foreach ($users as $user) {
             $accessToken = $this->facebookService->getRefreshedToken($user->token);
             $user->token = $accessToken;
