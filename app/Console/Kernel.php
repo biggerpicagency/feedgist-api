@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\RefreshToken;
 use App\Console\Commands\Reminder;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -14,7 +15,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Reminder::class
+        Reminder::class,
+        RefreshToken::class
     ];
 
     /**
@@ -27,6 +29,8 @@ class Kernel extends ConsoleKernel
     {
          $schedule->command('reminder')
                   ->hourly();
+        
+        $schedule->command('refresh:token')->dailyAt('00:30');
     }
 
     /**
