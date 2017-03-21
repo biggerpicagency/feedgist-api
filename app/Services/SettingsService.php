@@ -69,7 +69,7 @@ class SettingsService extends BaseService
             'usersName' => $user['name'],
             'usersEmail' => $user['email']
         ];
-        Mail::to('bartek@studiosidekicks.com')->send(new EmailToAdmin($emailData));
+        Mail::to(env('CONTACT_FORM_EMAIL'))->send(new EmailToAdmin($emailData));
         return ['message' => 'Thank you for your message.'];
     }
     
