@@ -5,6 +5,7 @@ namespace App\Services;
 use App\User;
 use Carbon\Carbon;
 use Facebook\FacebookRequest;
+use Facebook\Exceptions\FacebookResponseException;
 use Illuminate\Http\Request;
 use App\Services\BaseService;
 use App\Services\FacebookService;
@@ -37,8 +38,13 @@ class FeedService extends BaseService
             }
 
             $client = $this->facebookService->client( $this->getUser()['token'] );
-            $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=5&fields=from{name,picture,link},message,full_picture,created_time,link,likes.summary(true)');
-            $pages = $response->getDecodedBody();
+
+            try {
+                $response = $client->get('/posts?ids=' . $pagesListWithCommas .'&limit=5&fields=from{name,picture,link},message,full_picture,created_time,link,likes.summary(true)');
+                $pages = $response->getDecodedBody();
+            } catch (FacebookResponseException $e) {
+                return ['error' => $e->getMessage(), 'logout' => true];
+            }
 
             foreach ($pages as $page) {
                 if (!empty($page['data'])) {
@@ -70,7 +76,7 @@ class FeedService extends BaseService
         $response = $client->get('/' . $this->getUser()['social_id'] . '/likes?fields=name,picture,category');
         $graphEdge = $response->getGraphList();
 
-        $categorisedPages = [];
+        $categorisedPages = ['other' => ['name' => 'Other pages', 'pages' => []]];
         $totalPages = [];
         $pagesArray = [];
 
@@ -169,7 +175,8 @@ class FeedService extends BaseService
     {
         foreach ($pages as $page) {
             if (!in_array($page['category'], ['Actor', 'Artist', 'Bar', 'Business Service', 'Cars', 'Company', 'Education', 'Entertainment Website', 'Games/Toys', 'Magazine', 'Musician/Band', 'News/Media Website', 'Personal Blog', 'Politician', 'TV Channel', 'Website'])) {
-                continue;
+
+                $page['category'] = 'other';
             }
 
             if (isset($categorisedPages[ $page['category'] ])) {
