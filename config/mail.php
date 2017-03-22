@@ -119,7 +119,4 @@ return [
             resource_path('views/vendor/mail'),
         ],
     ],
-    
-    'pretend' => env('MAIL_PRETEND', false),
-
 ];
