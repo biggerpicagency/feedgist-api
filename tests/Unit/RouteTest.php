@@ -11,6 +11,8 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class RouteTest extends TestCase
 {
     use WithoutMiddleware;
+    use DatabaseMigrations;
+    use DatabaseTransactions;
     
     protected $testRoutes;
     
