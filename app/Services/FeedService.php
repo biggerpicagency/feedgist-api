@@ -4,11 +4,8 @@ namespace App\Services;
 
 use App\User;
 use Carbon\Carbon;
-use Facebook\FacebookRequest;
 use Facebook\Exceptions\FacebookResponseException;
 use Illuminate\Http\Request;
-use App\Services\BaseService;
-use App\Services\FacebookService;
 use App\Http\Requests\FeedSaveSettings;
 use App\Models\UsersPages;
 use Cache;
@@ -78,7 +75,6 @@ class FeedService extends BaseService
 
         $categorisedPages = ['other' => ['name' => 'Other pages', 'pages' => []]];
         $totalPages = [];
-        $pagesArray = [];
 
         $pagesArray = $graphEdge->asArray();
         $totalPages = array_merge($totalPages, $pagesArray);
@@ -116,12 +112,14 @@ class FeedService extends BaseService
 
         if ($onlyIds) {
             $pagesIds = $pagesIds->pluck('page_id')->toArray();
-        }
-
-        if ($allPages && $onlyIds) {
-            foreach ($allPages as $page) {
-                if (in_array($page['id'], $pagesIds)) {
-                    $pages[] = $page;
+            
+            if ($allPages) {
+                
+                foreach ($allPages as $page) {
+                    
+                    if (in_array($page['id'], $pagesIds)) {
+                        $pages[] = $page;
+                    }
                 }
             }
         }
@@ -145,7 +143,7 @@ class FeedService extends BaseService
             }
 
             Cache::forget('feed');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return ['error' => $e->getMessage()];
         }
 

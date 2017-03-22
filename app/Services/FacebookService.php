@@ -2,14 +2,14 @@
 
 namespace App\Services;
 
-use \Facebook\Facebook;
+use Facebook\Facebook;
 use GuzzleHttp;
 
 class FacebookService
 {
     public function client($accessToken)
     {
-        $client = new \Facebook\Facebook([
+        $client = new Facebook([
           'app_id' => config('services.facebook.client_id'),
           'app_secret' => config('services.facebook.client_secret'),
           'default_graph_version' => 'v2.8',
@@ -36,7 +36,7 @@ class FacebookService
 
             $response = json_decode($longLivedTokenResponse->getBody(), true);
             return $response['access_token'];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return ['error' => 'Token refresh unsuccessful.'];
         }
     }

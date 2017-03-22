@@ -51,7 +51,7 @@ class Jwt
         try {
             $user = JWTAuth::parseToken()->authenticate();
             return User::where('id', $user['id'])->first();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return null;
         }
     }

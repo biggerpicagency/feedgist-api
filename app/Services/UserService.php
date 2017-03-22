@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\User;
+use Facebook\Exceptions\FacebookResponseException;
+use Facebook\Exceptions\FacebookSDKException;
 use JWTAuth;
 use App\Models\UsersPages;
 
@@ -25,9 +27,9 @@ class UserService
 
         try {
             $response = $client->get('/me?fields=name,email');
-        } catch(\Facebook\Exceptions\FacebookResponseException $e) {
+        } catch(FacebookResponseException $e) {
             return ['error' => 'Graph returned an error: ' . $e->getMessage()];
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
+        } catch(FacebookSDKException $e) {
             return ['error' => 'Facebook SDK returned an error: ' . $e->getMessage()];
         }
 
@@ -36,7 +38,7 @@ class UserService
 
     private function findOrCreateUser($facebookGraphUser, $accessToken = null)
     {
-        $user = User::where('social_id', '=', $facebookGraphUser['id'])->first();
+        $user = User::where('social_id', $facebookGraphUser['id'])->first();
 
         if (is_object($user)) {
             $user->token = $accessToken;
@@ -53,7 +55,7 @@ class UserService
 
             try {
                 $user = User::create($result);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 return ['error' => 'User already exists.'];
             }
 

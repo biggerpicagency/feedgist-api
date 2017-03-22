@@ -28,6 +28,6 @@ class SocialAuthController extends Controller
             $accessToken = $response['access_token'];
         }
 
-        return $this->apiResponse( $userService->authenticateFacebookUser($accessToken) );
+        return $this->apiResponse($userService->authenticateFacebookUser($accessToken));
     }
 }

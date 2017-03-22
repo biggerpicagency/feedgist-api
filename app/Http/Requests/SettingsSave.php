@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Request;
 
 class SettingsSave extends FormRequest
 {
@@ -22,7 +21,7 @@ class SettingsSave extends FormRequest
      *
      * @return array
      */
-    public function rules(Request $request)
+    public function rules()
     {
         return [
             'player_id' => 'required',

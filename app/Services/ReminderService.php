@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-
-use App\Models\UserWebPushPlayer;
 use App\User;
 
 class ReminderService

@@ -10,17 +10,17 @@ class FeedController extends Controller
 {
     public function feedList(FeedService $feedService)
     {
-        return $this->apiResponse( $feedService->getList() );
+        return $this->apiResponse($feedService->getList());
     }
 
     public function settings(FeedService $feedService)
     {
-        return $this->apiResponse( $feedService->getSettings() );
+        return $this->apiResponse($feedService->getSettings());
     }
 
     public function saveSettings(FeedSaveSettings $request, FeedService $feedService)
     {
-        return $this->apiResponse( $feedService->saveSettings($request) );
+        return $this->apiResponse($feedService->saveSettings($request));
     }
     
     public function feedLikeOrDislike($postId, FeedLikeRequest $request, FeedService $feedService)
