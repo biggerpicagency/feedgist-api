@@ -44,7 +44,7 @@ class SettingsService extends BaseService
 
             return ['message' => 'Alerts Settings for this device have been saved.'];
         } catch (\Exception $e) {
-            return ['error' => 'Error while saving alerts settings occured.'];
+            return ['error' => 'Error while saving alerts settings occurred.'];
         }
     }
 

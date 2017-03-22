@@ -70,39 +70,46 @@ class FeedService extends BaseService
     public function getSettings()
     {
         $client = $this->facebookService->client( $this->getUser()['token'] );
-        $response = $client->get('/' . $this->getUser()['social_id'] . '/likes?fields=name,picture,category');
-        $graphEdge = $response->getGraphList();
-
-        $categorisedPages = ['other' => ['name' => 'Other pages', 'pages' => []]];
-        $totalPages = [];
-
-        $pagesArray = $graphEdge->asArray();
-        $totalPages = array_merge($totalPages, $pagesArray);
-        $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
-
-        if ($client->next($graphEdge)) {  
+        try {
+            $response = $client->get('/' . $this->getUser()['social_id'] . '/likes?fields=name,picture,category');
+            $graphEdge = $response->getGraphList();
+    
+            $categorisedPages = ['other' => ['name' => 'Other pages', 'pages' => []]];
+            $totalPages = [];
+    
             $pagesArray = $graphEdge->asArray();
             $totalPages = array_merge($totalPages, $pagesArray);
             $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
-
-            while ($graphEdge = $client->next($graphEdge)) { 
+    
+            if ($client->next($graphEdge)) {
                 $pagesArray = $graphEdge->asArray();
                 $totalPages = array_merge($totalPages, $pagesArray);
-                $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
+                $categorisedPages = array_merge($categorisedPages,
+                    $this->categorisePages($categorisedPages, $pagesArray));
+        
+                while ($graphEdge = $client->next($graphEdge)) {
+                    $pagesArray = $graphEdge->asArray();
+                    $totalPages = array_merge($totalPages, $pagesArray);
+                    $categorisedPages = array_merge($categorisedPages,
+                        $this->categorisePages($categorisedPages, $pagesArray));
+                }
+        
+            } else {
+                $pagesArray = $graphEdge->asArray();
+                $totalPages = array_merge($totalPages, $pagesArray);
+                $categorisedPages = array_merge($categorisedPages,
+                    $this->categorisePages($categorisedPages, $pagesArray));
             }
-
-        } else {
-            $pagesArray = $graphEdge->asArray();
-            $totalPages = array_merge($totalPages, $pagesArray);
-            $categorisedPages = array_merge($categorisedPages, $this->categorisePages($categorisedPages, $pagesArray));
+    
+            $allPages = $this->finalAllPages($totalPages);
+            return [
+                'categories' => $this->finalCategories($categorisedPages),
+                'all' => $allPages,
+                'selected' => $this->getSelectedPages(true, $allPages)
+            ];
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
         }
-
-        $allPages = $this->finalAllPages($totalPages);
-        return [
-            'categories' => $this->finalCategories($categorisedPages), 
-            'all' => $allPages,
-            'selected' => $this->getSelectedPages(true, $allPages)
-        ];
     }
 
     public function getSelectedPages($onlyIds = false, $allPages = [])
