@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class EmailSendingTest extends TestCase
 {
-    use EmailTracking;
+ //   use EmailTracking;
     use WithoutMiddleware;
     
     public function setUp()
@@ -24,7 +24,7 @@ class EmailSendingTest extends TestCase
      *
      * @return void
      */
-    public function testExample()
+    public function testEmail()
     {
 //        Mail::raw('Hello World', function ($message) {
 //            $message->from('foo@bar.com');

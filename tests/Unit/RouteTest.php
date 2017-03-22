@@ -20,7 +20,7 @@ class RouteTest extends TestCase
         $this->testRoutes = [
             'GET' => [
                 'api/feed/settings/' => '',
-                'api/settings/' => 'aaa'
+                'api/settings/' => 'dagfjaqy3u232dsha23223'
             ],
             'PUT' => [
                 'api/feed/settings/' => [
@@ -84,6 +84,7 @@ class RouteTest extends TestCase
                 case 'DELETE':
                     foreach ($testRoutes as $path => $params) {
                         $response = $this->json($method, '/' . $path . $params['path_params'], $params['request_params']);
+                        dump($response->getContent());
                         $response->assertJsonStructure(['message']);
                     }
                     break;

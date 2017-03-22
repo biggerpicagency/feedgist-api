@@ -8,7 +8,6 @@
 
 namespace Tests;
 
-
 use Illuminate\Support\Facades\Mail;
 
 trait EmailTracking
